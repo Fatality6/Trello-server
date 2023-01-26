@@ -3,6 +3,8 @@ import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import authRoute from './routes/auth.js'
+import boardRoute from './routes/board.js'
+import columnRoute from './routes/column.js'
 
 //создаём приложение express
 const app = express()
@@ -26,6 +28,8 @@ app.use(express.json())
 
 // Routes
 app.use('/api/auth', authRoute)
+app.use('/api/boards', boardRoute)
+app.use('/api/columns', columnRoute)
 
 //объявляем асинхронную функцию start, которая будет запускать приложение express
 async function start() {
