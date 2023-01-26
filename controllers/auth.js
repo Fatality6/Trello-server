@@ -92,3 +92,30 @@ export const login = async (req,res) => {
     }
 }
 
+//Get me
+export const getMe = async (req,res) => {
+    try {
+        //находим пользователя в БД по id
+        const user = await User.findById(req.userId)
+
+        //если совпадений нет, то возвращаем ответ 'Такого пользователя не существует'
+        if(!user) {
+            res.json({message:'Такого пользователя не существует'})
+        }
+
+        //если пользователь найден, то создаём токен используя jsonwebtoken шифруя id из БД и используя ключ из .env
+        //expiresIn:'30d' это время жизненного цикла токена
+        const token = jwt.sign(
+            {id: user._id},
+            process.env.JWT_SECRET,
+            {expiresIn:'30d'}
+        )
+        //возвращаем клиенту объект user и вновь закодированный token
+        res.json({
+            user,
+            token
+        })
+    } catch (error) {
+        res.json({message:'Нет доступа.'})
+    }
+}
