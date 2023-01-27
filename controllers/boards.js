@@ -8,7 +8,7 @@ export const createBoard = async( req, res ) => {
         const {boardName} = req.body
         //ищем по ID user`а
         const user = await User.findById(req.userId)
-            //создаём экземпляр схемы Post
+            //создаём экземпляр схемы Board
             const newBoard = new Board({
                 username: user.username,
                 title: boardName,
@@ -20,7 +20,7 @@ export const createBoard = async( req, res ) => {
             await User.findByIdAndUpdate(req.userId,{
                 $push: { boards: newBoard }
             }) 
-            //возвращаем созданный объект в res
+            //возвращаем созданный объект
             res.json({newBoard, message: 'Доска создана'})
     } catch (error) {
         res.json({message: 'Что-то пошло не так'})
@@ -38,6 +38,7 @@ export const getAllBoards = async( req, res ) => {
                 return Board.findById(board._id)
             })
         )
+        //возвращаем массив
         res.json({boards})
     } catch (error) {
         res.json({message: 'Что-то пошло не так'})
@@ -48,13 +49,19 @@ export const getAllBoards = async( req, res ) => {
 export const removeBoard = async( req, res ) => {
     try {
         // ищем доску по ID и удаляем её
-        const post = await Board.findByIdAndDelete(req.params.id)
-        //если поста нет возвращаем сообщение
-        if(!post) res.json({message: 'Такого поста не существует'})
+        const board = await Board.findByIdAndDelete(req.params.id)
+        //если доски нет возвращаем сообщение
+        if(!board) res.json({message: 'Такой доски не существует'})
         //если есть ищем пользователя и удаляем из его постов id поста
         await User.findByIdAndUpdate(req.userId,{
             $pull: { boards: req.params.id}
         })
+        //находим все колонки удаляемой доски и тоже их удаляем
+        await Promise.all(
+            board.columns.map((column) => {
+                return Board.findByIdAndDelete(column._id)
+            })
+        )
         //возвращаем сообщение
         res.json({message: 'Доска удалена', id:`${req.params.id}`})
     } catch (error) {
@@ -67,7 +74,7 @@ export const getById = async( req, res ) => {
     try {
         // ищем board по ID
         const board = await Board.findById(req.params.id)
-        //возвращаем пост
+        //возвращаем доску
         res.json(board)
     } catch (error) {
         res.json({message: 'Что-то пошло не так'})

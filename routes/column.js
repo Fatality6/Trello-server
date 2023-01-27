@@ -1,23 +1,19 @@
 import { Router } from "express"
-import { createColumn } from "../controllers/columns.js"
+import { createColumn, getAllColumns, removeColumn } from "../controllers/columns.js"
 import { checkAuth } from "../utils/chechAuth.js"
 
 //создаём endpointы и при выполнении на них запроса вызываем нужный котроллер или midlware
 const router = new Router()
 
-//create board
+//create column
 //api/boards
 router.post('/', checkAuth , createColumn)
 
-// //get boards
-// router.get('/', checkAuth, getAllBoards)
+//get columns
+router.get('/', checkAuth, getAllColumns)
 
-// //delete board
-// //http://localhost:8080/api/boards/:id
-// router.delete('/:id', checkAuth, removeBoard)
-
-// //Найти Доску по ID
-// //http://localhost:8080/api/boards/:id
-// router.get('/:id', getById)
+//delete column
+//http://localhost:8080/api/columns/:id
+router.delete('/:id', checkAuth, removeColumn)
 
 export default router
