@@ -1,7 +1,7 @@
 import Board from "../models/Board.js"
 import Column from "../models/Column.js"
 
-//Создать column
+//Создать колонку
 export const createColumn = async( req, res ) => {
     try {
         //из req получаем boardId, columnName
@@ -11,64 +11,55 @@ export const createColumn = async( req, res ) => {
             //создаём экземпляр схемы Column
             const newColumn = new Column({
                 title: columnName,
-                author: board.author
+                author: board.author,
+                boardId: boardId
             })
             //сохраняем экземпляр в БД
             await newColumn.save()
-            //находим доску колонки и добавляем в БД в массив columns новую колонку
+            //находим доску новой колонки и добавляем в БД в массив columns новую колонку
             await Board.findByIdAndUpdate(boardId,{
                 $push: { columns: newColumn }
             }) 
-            //возвращаем созданный объект в res
+            //возвращаем созданный объект
             res.json({newColumn, message: 'Колонка создана'})
     } catch (error) {
         res.json({message: 'Что-то пошло не так'})
     }
 }
 
-// //Найти все доски
-// export const getAllBoards = async( req, res ) => {
-//     try {
-//         //ищем пользователя по ID
-//         const user = await User.findById(req.userId)
-//          //составляем массив досок
-//          const boards = await Promise.all(
-//             user.boards.map((board) => {
-//                 return Board.findById(board._id)
-//             })
-//         )
-//         res.json({boards})
-//     } catch (error) {
-//         res.json({message: 'Что-то пошло не так'})
-//     }
-// }
+//Найти все колонки
+export const getAllColumns = async( req, res ) => {
+    try {
+        const {boardId} = req.query
+        //ищем доску по ID
+        const board = await Board.findById(boardId)
+         //составляем массив колонок
+         const columns = await Promise.all(
+            board.columns.map((column) => {
+                return Column.findById(column._id)
+            })
+        )
+        //возвращаем массив
+        res.json({columns})
+    } catch (error) {
+        res.json({message: 'Что-то пошло не так'})
+    }
+}
 
-// //Удалить доску
-// export const removeBoard = async( req, res ) => {
-//     try {
-//         // ищем доску по ID и удаляем её
-//         const post = await Board.findByIdAndDelete(req.params.id)
-//         //если поста нет возвращаем сообщение
-//         if(!post) res.json({message: 'Такого поста не существует'})
-//         //если есть ищем пользователя и удаляем из его постов id поста
-//         await User.findByIdAndUpdate(req.userId,{
-//             $pull: { boards: req.params.id}
-//         })
-//         //возвращаем сообщение
-//         res.json({message: 'Доска удалена', id:`${req.params.id}`})
-//     } catch (error) {
-//         res.json({message: 'Что-то пошло не так'})
-//     }
-// }
-
-// //Найти доску по ID
-// export const getById = async( req, res ) => {
-//     try {
-//         // ищем board по ID
-//         const board = await Board.findById(req.params.id)
-//         //возвращаем пост
-//         res.json(board)
-//     } catch (error) {
-//         res.json({message: 'Что-то пошло не так'})
-//     }
-// }
+//Удалить колонку
+export const removeColumn = async( req, res ) => {
+    try {
+        // ищем колонку по ID и удаляем её
+        const column = await Column.findByIdAndDelete(req.params.id)
+        //если колонки нет возвращаем сообщение
+        if(!column) res.json({message: 'Такой колонки не существует'})
+        //если есть ищем доску и удаляем из ее колонок id колонки
+        await Board.findByIdAndUpdate(column.boardId,{
+            $pull: { columns: req.params.id}
+        })
+        //возвращаем сообщение и id удалённой колонки
+        res.json({message: 'Колонка удалена', id:`${req.params.id}`})
+    } catch (error) {
+        res.json({message: 'Что-то пошло не так'})
+    }
+}
