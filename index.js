@@ -5,6 +5,7 @@ import cors from 'cors'
 import authRoute from './routes/auth.js'
 import boardRoute from './routes/board.js'
 import columnRoute from './routes/column.js'
+import cardRoute from './routes/card.js'
 
 //создаём приложение express
 const app = express()
@@ -30,6 +31,7 @@ app.use(express.json())
 app.use('/api/auth', authRoute)
 app.use('/api/boards', boardRoute)
 app.use('/api/columns', columnRoute)
+app.use('/api/cards', cardRoute)
 
 //объявляем асинхронную функцию start, которая будет запускать приложение express
 async function start() {

@@ -6,7 +6,7 @@ const Cardschema = new mongoose.Schema(
         title: { type: String, required: true },
         description: { type: String},
         author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Column'}
+        columnId: { type: mongoose.Schema.Types.ObjectId, ref: 'Column'}
     },
     { timestamps: true }
 )
