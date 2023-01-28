@@ -1,5 +1,7 @@
 import Board from "../models/Board.js"
 import User from "../models/User.js"
+import Column from "../models/Column.js"
+import Card from "../models/Card.js"
 
 //Создать доску
 export const createBoard = async( req, res ) => {
@@ -52,16 +54,16 @@ export const removeBoard = async( req, res ) => {
         const board = await Board.findByIdAndDelete(req.params.id)
         //если доски нет возвращаем сообщение
         if(!board) res.json({message: 'Такой доски не существует'})
-        //если есть ищем пользователя и удаляем из его постов id поста
+        //если есть ищем пользователя и удаляем из его досок id доски
         await User.findByIdAndUpdate(req.userId,{
             $pull: { boards: req.params.id}
         })
-        //находим все колонки удаляемой доски и тоже их удаляем
-        await Promise.all(
-            board.columns.map((column) => {
-                return Board.findByIdAndDelete(column._id)
-            })
-        )
+        //находим все колонки и каточки удаляемой доски и тоже их удаляем
+        Promise.all(board.columns.map(async(column) => {
+            await Column.findByIdAndDelete(column._id)
+            return await Card.deleteMany({ columnId: column._id})
+            }
+        ))
         //возвращаем сообщение
         res.json({message: 'Доска удалена', id:`${req.params.id}`})
     } catch (error) {

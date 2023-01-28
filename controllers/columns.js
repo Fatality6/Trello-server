@@ -1,4 +1,5 @@
 import Board from "../models/Board.js"
+import Card from "../models/Card.js"
 import Column from "../models/Column.js"
 
 //Создать колонку
@@ -57,6 +58,11 @@ export const removeColumn = async( req, res ) => {
         await Board.findByIdAndUpdate(column.boardId,{
             $pull: { columns: req.params.id}
         })
+        //находим все карточки удаляемой колонки и тоже их удаляем
+        column.cards.map(async(card) => {
+            return await Card.findByIdAndDelete(card._id)
+            }
+        )
         //возвращаем сообщение и id удалённой колонки
         res.json({message: 'Колонка удалена', id:`${req.params.id}`})
     } catch (error) {
