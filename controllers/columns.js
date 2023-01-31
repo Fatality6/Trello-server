@@ -29,23 +29,31 @@ export const createColumn = async( req, res ) => {
 }
 
 //Найти все колонки
-export const getAllColumns = async( req, res ) => {
+export const getAllColumns = async (req, res) => {
     try {
-        const {boardId} = req.query
-        //ищем доску по ID
-        const board = await Board.findById(boardId)
-         //составляем массив колонок
-         const columns = await Promise.all(
-            board.columns.map((column) => {
-                return Column.findById(column._id)
+      const { boardId } = req.query;
+      //ищем доску по ID
+      const board = await Board.findById(boardId)
+      //составляем массив колонок
+      const columns = await Promise.all(
+        //ищем колонки и карточки
+        board.columns.map(async (column) => {
+          const col = await Column.findById(column._id)
+          const cards = await Promise.all(
+            col.cards.map(async (card) => {
+              return await Card.findById(card._id)
             })
-        )
-        //возвращаем массив
-        res.json({columns})
+          )
+          //объединяем данные с помощью деструктурризации
+          return { ...col._doc, cards }
+        })
+      )
+      //возвращаем массив объектов
+      res.json({ columns })
     } catch (error) {
-        res.json({message: 'Что-то пошло не так'})
+      res.json({ message: "Что-то пошло не так" });
     }
-}
+  };
 
 //Удалить колонку
 export const removeColumn = async( req, res ) => {
