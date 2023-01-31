@@ -1,4 +1,3 @@
-import Board from "../models/Board.js"
 import Card from "../models/Card.js"
 import Column from "../models/Column.js"
 
@@ -22,26 +21,7 @@ export const createCard = async( req, res ) => {
                 $push: { cards: newCard }
             }) 
             //возвращаем созданный объект
-            res.json({newCard, message: 'Колонка создана'})
-    } catch (error) {
-        res.json({message: 'Что-то пошло не так'})
-    }
-}
-
-//Найти все карточки
-export const getAllCards = async( req, res ) => {
-    try {
-        const {id} = req.query
-        //ищем доску по ID
-        const column = await Column.findById(id)
-         //составляем массив колонок
-        const cards = await Promise.all(
-            column.cards.map((card) => {
-                return Card.findById(card._id)
-            })
-        )
-        //возвращаем массив
-        res.json({cards})
+            res.json({newCard, id, message: 'Колонка создана'})
     } catch (error) {
         res.json({message: 'Что-то пошло не так'})
     }
@@ -59,7 +39,7 @@ export const removeCard = async( req, res ) => {
             $pull: { cards: req.params.id}
         })
         //возвращаем сообщение и id удалённой колонки
-        res.json({message: 'карточка удалена', id:`${req.params.id}`})
+        res.json({message: 'карточка удалена', cardId:`${req.params.id}`, columnId:`${card.columnId}`})
     } catch (error) {
         res.json({message: 'Что-то пошло не так'})
     }
