@@ -27,6 +27,28 @@ export const createCard = async( req, res ) => {
     }
 }
 
+//Редактировать карточку
+export const updateCard = async( req, res ) => {
+    try {
+        //получаем из req.body title, id
+        const { title, id} = req.body
+
+        //находим пост по id
+        const card = await Card.findById(id)
+
+        //изменяем заголовок и текст поста
+        card.title = title
+
+        // сохраняем изменения в БД
+        await card.save()
+
+        //возвращаем пост
+        res.json(card)
+    } catch (error) {
+        res.json({message: 'Что-то пошло не так'})
+    }
+}
+
 //Удалить карточку
 export const removeCard = async( req, res ) => {
     try {
